@@ -1,28 +1,51 @@
-import { useState } from 'react'
+import { useCallback, useState } from "react";
+import Header from "./components/Header";
+import DownloadTrigger from "./components/DownloadTrigger";
+import Modal from "./components/Modal";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [open, setOpen] = useState(false);
+
+  const startDownload = useCallback(() => {
+    // Create a simple text file to download
+    const content = [
+      "Thanks for trying the Elegant Download Modal!",
+      "This is a sample file generated just for you.",
+      "\n— Flames.Blue"
+    ].join("\n");
+
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "sample.txt";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+    setOpen(false);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Vibe Coding Platform
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Your AI-powered development environment
-        </p>
-        <div className="text-center">
-          <button
-            onClick={() => setCount(count + 1)}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
-          >
-            Count is {count}
-          </button>
-        </div>
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50 text-slate-900 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 dark:text-white">
+      {/* Soft background accents */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl" />
+        <div className="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-indigo-500/10 blur-3xl" />
       </div>
+
+      <main className="relative z-10 mx-auto flex max-w-5xl flex-col items-center px-6 py-16">
+        <Header />
+
+        <div className="mt-2">
+          <DownloadTrigger onClick={() => setOpen(true)} />
+        </div>
+      </main>
+
+      <Modal open={open} onClose={() => setOpen(false)} onConfirm={startDownload} />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
